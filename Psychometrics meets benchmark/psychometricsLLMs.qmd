@@ -1,0 +1,162 @@
+---
+title: "Psychometrics Analyses of LLM benchmark data"
+author: "Tom, Aron, Julius"
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    html-math-method: katex
+---
+
+
+# Notes
+
+```{r}
+## global variables: 
+# only if needed
+```
+
+
+
+# load packages, data
+
+```{r}
+#| echo: true
+#| warning: false
+
+# sets the directory of location of this script as the current directory
+# setwd(dirname(rstudioapi::getSourceEditorContext()$path)) # not needed in Quatro env.
+
+### load packages
+#> This function is a wrapper for library and require. It checks to see if a package is installed, if not it attempts to install the package
+
+require(pacman)
+p_load('mirt', 'ggplot2', 'dplyr', 'tidyr', 'parallel')
+
+
+### load data
+setwd("data")
+
+#> long format
+data_long <- read.csv("mmlu_data.csv")
+data_long <- select(data_long, -"model")
+
+#> wide format
+data_wide <- spread(data_long, doc_id, acc)
+data_wide <- select(data_wide, -"model_id")
+```
+
+
+# making one suspicious
+
+## 1PL, 2PL over subsample
+
+
+over some sets of items the 2PL model do converge:
+
+! but, the models shows
+
+- bad item fit statistics:
+  + ...
+- too large item difficulties and / or item discrimination parameters
+
+
+```{r}
+########
+# sub-sample items
+########
+set.seed(12345) # to replicate results
+setSize <- 30
+random_items <- sample(x = 1:ncol(data_wide), size = setSize, replace = FALSE)
+sub_dat <- data_wide[, random_items]
+# sub_data_wide <- data_wide[, 1:30]
+
+
+# Fit 1PL model (Rasch model)
+fit1PLa <- mirt(data = sub_dat,
+               model = 1,  # one-dimensional model
+               itemtype = "Rasch")
+
+# Fit 2PL model
+fit2PLa <- mirt(data = sub_dat,
+               model = 1,  #one-dimensional
+               itemtype = "2PL",
+               technical = list(NCYCLES = 2000, SEtol = 1e-4))
+summary(fit2PLa)
+
+
+# Calculate item fit statistics for the 2PL model
+item_fit <- itemfit(fit2PLa)
+item_fit[order(item_fit$S_X2),]
+
+
+
+item_parameters_1PL <- coef(fit1PLa, IRTpars = TRUE, simplify = TRUE)$items
+item_parameters_2PL <- coef(fit2PLa, IRTpars = TRUE, simplify = TRUE)$items
+
+# item difficulty param
+#> 1PL
+summary(item_parameters_1PL[,"b"])
+#> 2PL
+summary(item_parameters_2PL[,"b"])
+
+
+# item discrimination param
+#> 1PL: X
+#> 2PL
+summary(item_parameters_2PL[,"a"])
+var(item_parameters_2PL[,"a"])
+```
+
+and over some sets of items the 2PL model do not converge:
+
+
+```{r}
+########
+# sub-sample items
+########
+set.seed(11111) # to replicate results
+setSize <- 30
+random_items <- sample(x = 1:ncol(data_wide), size = setSize, replace = FALSE)
+sub_dat <- data_wide[, random_items]
+# sub_data_wide <- data_wide[, 1:30]
+
+
+# Fit 1PL model (Rasch model)
+fit1PLa <- mirt(data = sub_dat,
+               model = 1,  # one-dimensional model
+               itemtype = "Rasch")
+
+# Fit 2PL model
+fit2PLa <- mirt(data = sub_dat,
+               model = 1,  #one-dimensional
+               itemtype = "2PL",
+               technical = list(NCYCLES = 2000, SEtol = 1e-4))
+```
+
+
+# brief theory of latent variable models
+
+- assumptions latent variable models: local item dependency, ...
+- assumptions IRT models, ...
+- different models to account for violations of assumptions, ...
+
+# check assumptions of such models
+
+
+## check for unidimensionality
+
+- Phi Coefficient, followed by EFA
+- test model again for subset of uni-dimensional items
+
+
+## num items to num persons
+
+- small simulation study
+- unstable if items >> persons
+
+
+
+
+
+

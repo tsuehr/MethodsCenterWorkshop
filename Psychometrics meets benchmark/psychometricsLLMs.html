@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.554">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Tom, Aron, Julius">
+
+<title>Psychometrics Analyses of LLM benchmark data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="psychometricsLLMs_files/libs/clipboard/clipboard.min.js"></script>
+<script src="psychometricsLLMs_files/libs/quarto-html/quarto.js"></script>
+<script src="psychometricsLLMs_files/libs/quarto-html/popper.min.js"></script>
+<script src="psychometricsLLMs_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="psychometricsLLMs_files/libs/quarto-html/anchor.min.js"></script>
+<link href="psychometricsLLMs_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="psychometricsLLMs_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="psychometricsLLMs_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="psychometricsLLMs_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="psychometricsLLMs_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#notes" id="toc-notes" class="nav-link active" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#load-packages-data" id="toc-load-packages-data" class="nav-link" data-scroll-target="#load-packages-data">load packages, data</a></li>
+  <li><a href="#making-one-suspicious" id="toc-making-one-suspicious" class="nav-link" data-scroll-target="#making-one-suspicious">making one suspicious</a>
+  <ul>
+  <li><a href="#pl-2pl-over-subsample" id="toc-pl-2pl-over-subsample" class="nav-link" data-scroll-target="#pl-2pl-over-subsample">1PL, 2PL over subsample</a></li>
+  </ul></li>
+  <li><a href="#brief-theory-of-latent-variable-models" id="toc-brief-theory-of-latent-variable-models" class="nav-link" data-scroll-target="#brief-theory-of-latent-variable-models">brief theory of latent variable models</a></li>
+  <li><a href="#check-assumptions-of-such-models" id="toc-check-assumptions-of-such-models" class="nav-link" data-scroll-target="#check-assumptions-of-such-models">check assumptions of such models</a>
+  <ul>
+  <li><a href="#check-for-unidimensionality" id="toc-check-for-unidimensionality" class="nav-link" data-scroll-target="#check-for-unidimensionality">check for unidimensionality</a></li>
+  <li><a href="#num-items-to-num-persons" id="toc-num-items-to-num-persons" class="nav-link" data-scroll-target="#num-items-to-num-persons">num items to num persons</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Psychometrics Analyses of LLM benchmark data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Tom, Aron, Julius </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="notes" class="level1">
+<h1>Notes</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## global variables: </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># only if needed</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-packages-data" class="level1">
+<h1>load packages, data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sets the directory of location of this script as the current directory</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># setwd(dirname(rstudioapi::getSourceEditorContext()$path)) # not needed in Quatro env.</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="do">### load packages</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; This function is a wrapper for library and require. It checks to see if a package is installed, if not it attempts to install the package</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(pacman)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">p_load</span>(<span class="st">'mirt'</span>, <span class="st">'ggplot2'</span>, <span class="st">'dplyr'</span>, <span class="st">'tidyr'</span>, <span class="st">'parallel'</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="do">### load data</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"data"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; long format</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"mmlu_data.csv"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> <span class="fu">select</span>(data_long, <span class="sc">-</span><span class="st">"model"</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; wide format</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>data_wide <span class="ot">&lt;-</span> <span class="fu">spread</span>(data_long, doc_id, acc)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>data_wide <span class="ot">&lt;-</span> <span class="fu">select</span>(data_wide, <span class="sc">-</span><span class="st">"model_id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="making-one-suspicious" class="level1">
+<h1>making one suspicious</h1>
+<section id="pl-2pl-over-subsample" class="level2">
+<h2 class="anchored" data-anchor-id="pl-2pl-over-subsample">1PL, 2PL over subsample</h2>
+<p>over some sets of items the 2PL model do converge:</p>
+<p>! but, the models shows</p>
+<ul>
+<li>bad item fit statistics:
+<ul>
+<li>…</li>
+</ul></li>
+<li>too large item difficulties and / or item discrimination parameters</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">########</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># sub-sample items</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">########</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>) <span class="co"># to replicate results</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>setSize <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>random_items <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(data_wide), <span class="at">size =</span> setSize, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>sub_dat <span class="ot">&lt;-</span> data_wide[, random_items]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># sub_data_wide &lt;- data_wide[, 1:30]</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit 1PL model (Rasch model)</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>fit1PLa <span class="ot">&lt;-</span> <span class="fu">mirt</span>(<span class="at">data =</span> sub_dat,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">model =</span> <span class="dv">1</span>,  <span class="co"># one-dimensional model</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>               <span class="at">itemtype =</span> <span class="st">"Rasch"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Iteration: 1, Log-Lik: -2897.220, Max-Change: 0.38711
+Iteration: 2, Log-Lik: -2887.135, Max-Change: 0.10725
+Iteration: 3, Log-Lik: -2884.780, Max-Change: 0.05069
+Iteration: 4, Log-Lik: -2883.943, Max-Change: 0.02830
+Iteration: 5, Log-Lik: -2883.643, Max-Change: 0.01585
+Iteration: 6, Log-Lik: -2883.517, Max-Change: 0.00963
+Iteration: 7, Log-Lik: -2883.440, Max-Change: 0.00689
+Iteration: 8, Log-Lik: -2883.422, Max-Change: 0.00384
+Iteration: 9, Log-Lik: -2883.415, Max-Change: 0.00238
+Iteration: 10, Log-Lik: -2883.412, Max-Change: 0.00163
+Iteration: 11, Log-Lik: -2883.410, Max-Change: 0.00093
+Iteration: 12, Log-Lik: -2883.410, Max-Change: 0.00058
+Iteration: 13, Log-Lik: -2883.410, Max-Change: 0.00040
+Iteration: 14, Log-Lik: -2883.410, Max-Change: 0.00022
+Iteration: 15, Log-Lik: -2883.410, Max-Change: 0.00014
+Iteration: 16, Log-Lik: -2883.410, Max-Change: 0.00009</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit 2PL model</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fit2PLa <span class="ot">&lt;-</span> <span class="fu">mirt</span>(<span class="at">data =</span> sub_dat,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">model =</span> <span class="dv">1</span>,  <span class="co">#one-dimensional</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">itemtype =</span> <span class="st">"2PL"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">technical =</span> <span class="fu">list</span>(<span class="at">NCYCLES =</span> <span class="dv">2000</span>, <span class="at">SEtol =</span> <span class="fl">1e-4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Iteration: 1, Log-Lik: -2889.251, Max-Change: 1.30957
+Iteration: 2, Log-Lik: -2710.490, Max-Change: 0.74762
+Iteration: 3, Log-Lik: -2684.168, Max-Change: 0.38272
+Iteration: 4, Log-Lik: -2681.224, Max-Change: 0.22441
+Iteration: 5, Log-Lik: -2680.305, Max-Change: 0.14145
+Iteration: 6, Log-Lik: -2679.956, Max-Change: 0.09752
+Iteration: 7, Log-Lik: -2679.721, Max-Change: 0.03978
+Iteration: 8, Log-Lik: -2679.698, Max-Change: 0.02871
+Iteration: 9, Log-Lik: -2679.686, Max-Change: 0.01827
+Iteration: 10, Log-Lik: -2679.674, Max-Change: 0.00807
+Iteration: 11, Log-Lik: -2679.673, Max-Change: 0.00495
+Iteration: 12, Log-Lik: -2679.671, Max-Change: 0.00378
+Iteration: 13, Log-Lik: -2679.670, Max-Change: 0.00187
+Iteration: 14, Log-Lik: -2679.670, Max-Change: 0.00205
+Iteration: 15, Log-Lik: -2679.669, Max-Change: 0.00167
+Iteration: 16, Log-Lik: -2679.669, Max-Change: 0.00056
+Iteration: 17, Log-Lik: -2679.669, Max-Change: 0.00047
+Iteration: 18, Log-Lik: -2679.669, Max-Change: 0.00042
+Iteration: 19, Log-Lik: -2679.669, Max-Change: 0.00064
+Iteration: 20, Log-Lik: -2679.669, Max-Change: 0.00069
+Iteration: 21, Log-Lik: -2679.669, Max-Change: 0.00065
+Iteration: 22, Log-Lik: -2679.669, Max-Change: 0.00026
+Iteration: 23, Log-Lik: -2679.669, Max-Change: 0.00025
+Iteration: 24, Log-Lik: -2679.669, Max-Change: 0.00023
+Iteration: 25, Log-Lik: -2679.668, Max-Change: 0.00026
+Iteration: 26, Log-Lik: -2679.668, Max-Change: 0.00028
+Iteration: 27, Log-Lik: -2679.668, Max-Change: 0.00026
+Iteration: 28, Log-Lik: -2679.668, Max-Change: 0.00017
+Iteration: 29, Log-Lik: -2679.668, Max-Change: 0.00016
+Iteration: 30, Log-Lik: -2679.668, Max-Change: 0.00015
+Iteration: 31, Log-Lik: -2679.668, Max-Change: 0.00014
+Iteration: 32, Log-Lik: -2679.668, Max-Change: 0.00015
+Iteration: 33, Log-Lik: -2679.668, Max-Change: 0.00014
+Iteration: 34, Log-Lik: -2679.668, Max-Change: 0.00012
+Iteration: 35, Log-Lik: -2679.668, Max-Change: 0.00011
+Iteration: 36, Log-Lik: -2679.668, Max-Change: 0.00011
+Iteration: 37, Log-Lik: -2679.668, Max-Change: 0.00010
+Iteration: 38, Log-Lik: -2679.668, Max-Change: 0.00010</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2PLa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           F1       h2
+8242   0.7164 0.513229
+719    0.0153 0.000233
+8921   0.5968 0.356181
+10903 -0.0945 0.008929
+4921   0.9096 0.827388
+604   -0.1254 0.015729
+2263   0.7264 0.527699
+9985  -0.1602 0.025654
+74     0.2246 0.050447
+9253  -0.1744 0.030421
+9053  -0.1998 0.039917
+9993   0.7011 0.491519
+11728  0.9172 0.841316
+5030   0.2730 0.074535
+9472   0.5244 0.275017
+9163   0.7602 0.577830
+2887   0.4475 0.200252
+2818   0.5803 0.336767
+392   -0.1267 0.016061
+11916  0.2497 0.062340
+7871   0.2435 0.059291
+7315   0.2293 0.052593
+7785  -0.0453 0.002048
+10102  0.8151 0.664436
+7695   0.0241 0.000582
+8783  -0.2131 0.045417
+2109   0.7612 0.579485
+11743  0.6032 0.363889
+11617 -0.1519 0.023061
+1523   0.4218 0.177945
+
+SS loadings:  7.24 
+Proportion Var:  0.241 
+
+Factor correlations: 
+
+   F1
+F1  1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate item fit statistics for the 2PL model</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>item_fit <span class="ot">&lt;-</span> <span class="fu">itemfit</span>(fit2PLa)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>item_fit[<span class="fu">order</span>(item_fit<span class="sc">$</span>S_X2),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    item   S_X2 df.S_X2 RMSEA.S_X2 p.S_X2
+21  7871  0.045       1      0.000  0.832
+5   4921  5.625       6      0.000  0.466
+22  7315  5.783       7      0.000  0.565
+24 10102  6.270       7      0.000  0.509
+27  2109  7.394       8      0.000  0.495
+30  1523  8.319       3      0.093  0.040
+23  7785  8.830      11      0.000  0.638
+17  2887  9.483      11      0.000  0.577
+1   8242  9.505       9      0.016  0.392
+16  9163 10.175       9      0.025  0.337
+12  9993 10.331       9      0.027  0.324
+20 11916 10.609       9      0.029  0.303
+28 11743 10.871      10      0.021  0.368
+4  10903 11.203      13      0.000  0.594
+14  5030 11.706      11      0.018  0.386
+6    604 12.074       3      0.121  0.007
+10  9253 13.393       9      0.049  0.146
+15  9472 13.495       9      0.049  0.141
+3   8921 14.652      10      0.047  0.145
+19   392 14.700      13      0.025  0.326
+13 11728 14.707       7      0.073  0.040
+8   9985 15.179       9      0.058  0.086
+9     74 15.640      11      0.045  0.155
+7   2263 15.765       8      0.068  0.046
+11  9053 15.910      13      0.033  0.254
+2    719 17.528      13      0.041  0.176
+25  7695 19.036      13      0.047  0.122
+26  8783 20.381      12      0.058  0.060
+18  2818 29.261      10      0.096  0.001
+29 11617     NA      NA         NA     NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>item_parameters_1PL <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit1PLa, <span class="at">IRTpars =</span> <span class="cn">TRUE</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>item_parameters_2PL <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit2PLa, <span class="at">IRTpars =</span> <span class="cn">TRUE</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># item difficulty param</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1PL</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(item_parameters_1PL[,<span class="st">"b"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.8206  0.7781  1.2490  1.5363  2.3804  4.8605 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2PL</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(item_parameters_2PL[,<span class="st">"b"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-22.6202  -2.8352   0.4355   0.3495   2.3800  37.5113 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># item discrimination param</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1PL: X</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2PL</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(item_parameters_2PL[,<span class="st">"a"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.3712 -0.1404  0.4609  0.8563  1.5769  3.9190 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(item_parameters_2PL[,<span class="st">"a"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.33649</code></pre>
+</div>
+</div>
+<p>and over some sets of items the 2PL model do not converge:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">########</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># sub-sample items</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="do">########</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">11111</span>) <span class="co"># to replicate results</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>setSize <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>random_items <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(data_wide), <span class="at">size =</span> setSize, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>sub_dat <span class="ot">&lt;-</span> data_wide[, random_items]</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># sub_data_wide &lt;- data_wide[, 1:30]</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit 1PL model (Rasch model)</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>fit1PLa <span class="ot">&lt;-</span> <span class="fu">mirt</span>(<span class="at">data =</span> sub_dat,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">model =</span> <span class="dv">1</span>,  <span class="co"># one-dimensional model</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>               <span class="at">itemtype =</span> <span class="st">"Rasch"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Iteration: 1, Log-Lik: -2644.373, Max-Change: 0.67727
+Iteration: 2, Log-Lik: -2642.626, Max-Change: 0.02999
+Iteration: 3, Log-Lik: -2642.527, Max-Change: 0.01476
+Iteration: 4, Log-Lik: -2642.500, Max-Change: 0.00774
+Iteration: 5, Log-Lik: -2642.493, Max-Change: 0.00382
+Iteration: 6, Log-Lik: -2642.490, Max-Change: 0.00201
+Iteration: 7, Log-Lik: -2642.489, Max-Change: 0.00122
+Iteration: 8, Log-Lik: -2642.489, Max-Change: 0.00060
+Iteration: 9, Log-Lik: -2642.489, Max-Change: 0.00034
+Iteration: 10, Log-Lik: -2642.489, Max-Change: 0.00023
+Iteration: 11, Log-Lik: -2642.489, Max-Change: 0.00013
+Iteration: 12, Log-Lik: -2642.489, Max-Change: 0.00016
+Iteration: 13, Log-Lik: -2642.489, Max-Change: 0.00011
+Iteration: 14, Log-Lik: -2642.489, Max-Change: 0.00005</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit 2PL model</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>fit2PLa <span class="ot">&lt;-</span> <span class="fu">mirt</span>(<span class="at">data =</span> sub_dat,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">model =</span> <span class="dv">1</span>,  <span class="co">#one-dimensional</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">itemtype =</span> <span class="st">"2PL"</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">technical =</span> <span class="fu">list</span>(<span class="at">NCYCLES =</span> <span class="dv">2000</span>, <span class="at">SEtol =</span> <span class="fl">1e-4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Iteration: 1, Log-Lik: -2644.423, Max-Change: 2.13416
+Iteration: 2, Log-Lik: -2429.595, Max-Change: 1.27688
+Iteration: 3, Log-Lik: -2403.489, Max-Change: 0.80668
+Iteration: 4, Log-Lik: -2398.514, Max-Change: 0.66455
+Iteration: 5, Log-Lik: -2396.573, Max-Change: 0.70409
+Iteration: 6, Log-Lik: -2395.649, Max-Change: 0.98215
+Iteration: 7, Log-Lik: -2394.666, Max-Change: 0.15755
+Iteration: 8, Log-Lik: -2394.541, Max-Change: 1.06463
+Iteration: 9, Log-Lik: -2394.495, Max-Change: 0.02274
+Iteration: 10, Log-Lik: -2394.495, Max-Change: 0.83900
+Iteration: 11, Log-Lik: -2394.471, Max-Change: 0.01879
+Iteration: 12, Log-Lik: -2394.469, Max-Change: 0.87285
+Iteration: 13, Log-Lik: -2394.452, Max-Change: 0.00789
+Iteration: 14, Log-Lik: -2394.451, Max-Change: 0.00399
+Iteration: 15, Log-Lik: -2394.450, Max-Change: 0.00332
+Iteration: 16, Log-Lik: -2394.449, Max-Change: 0.02121
+Iteration: 17, Log-Lik: -2394.449, Max-Change: 0.00360
+Iteration: 18, Log-Lik: -2394.448, Max-Change: 0.00179
+Iteration: 19, Log-Lik: -2394.448, Max-Change: 0.00146
+Iteration: 20, Log-Lik: -2394.448, Max-Change: 0.00156
+Iteration: 21, Log-Lik: -2394.448, Max-Change: 0.00134
+Iteration: 22, Log-Lik: -2394.447, Max-Change: 0.00062
+Iteration: 23, Log-Lik: -2394.447, Max-Change: 0.00055
+Iteration: 24, Log-Lik: -2394.447, Max-Change: 0.00053
+Iteration: 25, Log-Lik: -2394.447, Max-Change: 0.00042
+Iteration: 26, Log-Lik: -2394.447, Max-Change: 0.00043
+Iteration: 27, Log-Lik: -2394.447, Max-Change: 0.00043
+Iteration: 28, Log-Lik: -2394.447, Max-Change: 0.00043
+Iteration: 29, Log-Lik: -2394.447, Max-Change: 0.00043
+Iteration: 30, Log-Lik: -2394.447, Max-Change: 0.00217
+Iteration: 31, Log-Lik: -2394.447, Max-Change: 0.00156
+Iteration: 32, Log-Lik: -2394.447, Max-Change: 0.00112
+Iteration: 33, Log-Lik: -2394.447, Max-Change: 0.00081
+Iteration: 34, Log-Lik: -2394.447, Max-Change: 0.00225
+Iteration: 35, Log-Lik: -2394.447, Max-Change: 0.00090
+Iteration: 36, Log-Lik: -2394.447, Max-Change: 0.00065
+Iteration: 37, Log-Lik: -2394.447, Max-Change: 0.80230
+Iteration: 38, Log-Lik: -2394.437, Max-Change: 0.00351
+Iteration: 39, Log-Lik: -2394.436, Max-Change: 0.00094
+Iteration: 40, Log-Lik: -2394.436, Max-Change: 0.00055
+Iteration: 41, Log-Lik: -2394.436, Max-Change: 0.00051
+Iteration: 42, Log-Lik: -2394.436, Max-Change: 0.00241
+Iteration: 43, Log-Lik: -2394.436, Max-Change: 0.00095
+Iteration: 44, Log-Lik: -2394.436, Max-Change: 0.00075
+Iteration: 45, Log-Lik: -2394.436, Max-Change: 0.00061
+Iteration: 46, Log-Lik: -2394.436, Max-Change: 0.00165
+Iteration: 47, Log-Lik: -2394.436, Max-Change: 0.00065
+Iteration: 48, Log-Lik: -2394.436, Max-Change: 0.00053
+Iteration: 49, Log-Lik: -2394.436, Max-Change: 0.00176
+Iteration: 50, Log-Lik: -2394.436, Max-Change: 0.00062
+Iteration: 51, Log-Lik: -2394.436, Max-Change: 0.00048
+Iteration: 52, Log-Lik: -2394.436, Max-Change: 0.00182
+Iteration: 53, Log-Lik: -2394.436, Max-Change: 0.00064
+Iteration: 54, Log-Lik: -2394.436, Max-Change: 0.00046
+Iteration: 55, Log-Lik: -2394.436, Max-Change: 0.00185
+Iteration: 56, Log-Lik: -2394.436, Max-Change: 0.00069
+Iteration: 57, Log-Lik: -2394.436, Max-Change: 0.00046
+Iteration: 58, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 59, Log-Lik: -2394.436, Max-Change: 0.00079
+Iteration: 60, Log-Lik: -2394.436, Max-Change: 0.00050
+Iteration: 61, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 62, Log-Lik: -2394.436, Max-Change: 0.00096
+Iteration: 63, Log-Lik: -2394.436, Max-Change: 0.00062
+Iteration: 64, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 65, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 66, Log-Lik: -2394.436, Max-Change: 0.00086
+Iteration: 67, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 68, Log-Lik: -2394.436, Max-Change: 0.00086
+Iteration: 69, Log-Lik: -2394.436, Max-Change: 0.00055
+Iteration: 70, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 71, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 72, Log-Lik: -2394.436, Max-Change: 0.00071
+Iteration: 73, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 74, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 75, Log-Lik: -2394.436, Max-Change: 0.00072
+Iteration: 76, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 77, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 78, Log-Lik: -2394.436, Max-Change: 0.00074
+Iteration: 79, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 80, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 81, Log-Lik: -2394.436, Max-Change: 0.00075
+Iteration: 82, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 83, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 84, Log-Lik: -2394.436, Max-Change: 0.00076
+Iteration: 85, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 86, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 87, Log-Lik: -2394.436, Max-Change: 0.00077
+Iteration: 88, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 89, Log-Lik: -2394.436, Max-Change: 0.00189
+Iteration: 90, Log-Lik: -2394.436, Max-Change: 0.00078
+Iteration: 91, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 92, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 93, Log-Lik: -2394.436, Max-Change: 0.00079
+Iteration: 94, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 95, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 96, Log-Lik: -2394.436, Max-Change: 0.00079
+Iteration: 97, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 98, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 99, Log-Lik: -2394.436, Max-Change: 0.00080
+Iteration: 100, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 101, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 102, Log-Lik: -2394.436, Max-Change: 0.00080
+Iteration: 103, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 104, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 105, Log-Lik: -2394.436, Max-Change: 0.00080
+Iteration: 106, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 107, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 108, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 109, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 110, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 111, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 112, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 113, Log-Lik: -2394.436, Max-Change: 0.00188
+Iteration: 114, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 115, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 116, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 117, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 118, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 119, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 120, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 121, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 122, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 123, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 124, Log-Lik: -2394.436, Max-Change: 0.00038
+Iteration: 125, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 126, Log-Lik: -2394.436, Max-Change: 0.00081
+Iteration: 127, Log-Lik: -2394.436, Max-Change: 0.00037
+Iteration: 128, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 129, Log-Lik: -2394.436, Max-Change: 0.00082
+Iteration: 130, Log-Lik: -2394.436, Max-Change: 0.00037
+Iteration: 131, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 132, Log-Lik: -2394.436, Max-Change: 0.00082
+Iteration: 133, Log-Lik: -2394.436, Max-Change: 0.00037
+Iteration: 134, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 135, Log-Lik: -2394.436, Max-Change: 0.00082
+Iteration: 136, Log-Lik: -2394.436, Max-Change: 0.00037
+Iteration: 137, Log-Lik: -2394.436, Max-Change: 0.00187
+Iteration: 138, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 139, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 140, Log-Lik: -2394.435, Max-Change: 0.00187
+Iteration: 141, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 142, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 143, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 144, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 145, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 146, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 147, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 148, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 149, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 150, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 151, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 152, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 153, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 154, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 155, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 156, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 157, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 158, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 159, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 160, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 161, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 162, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 163, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 164, Log-Lik: -2394.435, Max-Change: 0.00186
+Iteration: 165, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 166, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 167, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 168, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 169, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 170, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 171, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 172, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 173, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 174, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 175, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 176, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 177, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 178, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 179, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 180, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 181, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 182, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 183, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 184, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 185, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 186, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 187, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 188, Log-Lik: -2394.435, Max-Change: 0.00185
+Iteration: 189, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 190, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 191, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 192, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 193, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 194, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 195, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 196, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 197, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 198, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 199, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 200, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 201, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 202, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 203, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 204, Log-Lik: -2394.435, Max-Change: 0.00082
+Iteration: 205, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 206, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 207, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 208, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 209, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 210, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 211, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 212, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 213, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 214, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 215, Log-Lik: -2394.435, Max-Change: 0.00184
+Iteration: 216, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 217, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 218, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 219, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 220, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 221, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 222, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 223, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 224, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 225, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 226, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 227, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 228, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 229, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 230, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 231, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 232, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 233, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 234, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 235, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 236, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 237, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 238, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 239, Log-Lik: -2394.435, Max-Change: 0.00183
+Iteration: 240, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 241, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 242, Log-Lik: -2394.435, Max-Change: 0.00182
+Iteration: 243, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 244, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 245, Log-Lik: -2394.435, Max-Change: 0.00182
+Iteration: 246, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 247, Log-Lik: -2394.435, Max-Change: 0.00037
+Iteration: 248, Log-Lik: -2394.435, Max-Change: 0.00182
+Iteration: 249, Log-Lik: -2394.435, Max-Change: 0.00081
+Iteration: 250, Log-Lik: -2394.435, Max-Change: 0.00036
+Iteration: 251, Log-Lik: -2394.435, Max-Change: 0.00182
+Iteration: 252, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 253, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 254, Log-Lik: -2394.434, Max-Change: 0.00182
+Iteration: 255, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 256, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 257, Log-Lik: -2394.434, Max-Change: 0.00182
+Iteration: 258, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 259, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 260, Log-Lik: -2394.434, Max-Change: 0.00182
+Iteration: 261, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 262, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 263, Log-Lik: -2394.434, Max-Change: 0.00182
+Iteration: 264, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 265, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 266, Log-Lik: -2394.434, Max-Change: 0.00182
+Iteration: 267, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 268, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 269, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 270, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 271, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 272, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 273, Log-Lik: -2394.434, Max-Change: 0.00081
+Iteration: 274, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 275, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 276, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 277, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 278, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 279, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 280, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 281, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 282, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 283, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 284, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 285, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 286, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 287, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 288, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 289, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 290, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 291, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 292, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 293, Log-Lik: -2394.434, Max-Change: 0.00181
+Iteration: 294, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 295, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 296, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 297, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 298, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 299, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 300, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 301, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 302, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 303, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 304, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 305, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 306, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 307, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 308, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 309, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 310, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 311, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 312, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 313, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 314, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 315, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 316, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 317, Log-Lik: -2394.434, Max-Change: 0.00180
+Iteration: 318, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 319, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 320, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 321, Log-Lik: -2394.434, Max-Change: 0.00080
+Iteration: 322, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 323, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 324, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 325, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 326, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 327, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 328, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 329, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 330, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 331, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 332, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 333, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 334, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 335, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 336, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 337, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 338, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 339, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 340, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 341, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 342, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 343, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 344, Log-Lik: -2394.434, Max-Change: 0.00179
+Iteration: 345, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 346, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 347, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 348, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 349, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 350, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 351, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 352, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 353, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 354, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 355, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 356, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 357, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 358, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 359, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 360, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 361, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 362, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 363, Log-Lik: -2394.434, Max-Change: 0.00079
+Iteration: 364, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 365, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 366, Log-Lik: -2394.434, Max-Change: 0.00078
+Iteration: 367, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 368, Log-Lik: -2394.434, Max-Change: 0.00178
+Iteration: 369, Log-Lik: -2394.434, Max-Change: 0.00078
+Iteration: 370, Log-Lik: -2394.434, Max-Change: 0.00036
+Iteration: 371, Log-Lik: -2394.433, Max-Change: 0.00178
+Iteration: 372, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 373, Log-Lik: -2394.433, Max-Change: 0.00036
+Iteration: 374, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 375, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 376, Log-Lik: -2394.433, Max-Change: 0.00036
+Iteration: 377, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 378, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 379, Log-Lik: -2394.433, Max-Change: 0.00036
+Iteration: 380, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 381, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 382, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 383, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 384, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 385, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 386, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 387, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 388, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 389, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 390, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 391, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 392, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 393, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 394, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 395, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 396, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 397, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 398, Log-Lik: -2394.433, Max-Change: 0.00177
+Iteration: 399, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 400, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 401, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 402, Log-Lik: -2394.433, Max-Change: 0.00078
+Iteration: 403, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 404, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 405, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 406, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 407, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 408, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 409, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 410, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 411, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 412, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 413, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 414, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 415, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 416, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 417, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 418, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 419, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 420, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 421, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 422, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 423, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 424, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 425, Log-Lik: -2394.433, Max-Change: 0.00176
+Iteration: 426, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 427, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 428, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 429, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 430, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 431, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 432, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 433, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 434, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 435, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 436, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 437, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 438, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 439, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 440, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 441, Log-Lik: -2394.433, Max-Change: 0.00077
+Iteration: 442, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 443, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 444, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 445, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 446, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 447, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 448, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 449, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 450, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 451, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 452, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 453, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 454, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 455, Log-Lik: -2394.433, Max-Change: 0.00175
+Iteration: 456, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 457, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 458, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 459, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 460, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 461, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 462, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 463, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 464, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 465, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 466, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 467, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 468, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 469, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 470, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 471, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 472, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 473, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 474, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 475, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 476, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 477, Log-Lik: -2394.433, Max-Change: 0.00076
+Iteration: 478, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 479, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 480, Log-Lik: -2394.433, Max-Change: 0.00075
+Iteration: 481, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 482, Log-Lik: -2394.433, Max-Change: 0.00174
+Iteration: 483, Log-Lik: -2394.433, Max-Change: 0.00075
+Iteration: 484, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 485, Log-Lik: -2394.433, Max-Change: 0.00173
+Iteration: 486, Log-Lik: -2394.433, Max-Change: 0.00075
+Iteration: 487, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 488, Log-Lik: -2394.433, Max-Change: 0.00173
+Iteration: 489, Log-Lik: -2394.433, Max-Change: 0.00075
+Iteration: 490, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 491, Log-Lik: -2394.433, Max-Change: 0.00173
+Iteration: 492, Log-Lik: -2394.433, Max-Change: 0.00075
+Iteration: 493, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 494, Log-Lik: -2394.433, Max-Change: 0.00173
+Iteration: 495, Log-Lik: -2394.433, Max-Change: 0.00075
+Iteration: 496, Log-Lik: -2394.433, Max-Change: 0.00035
+Iteration: 497, Log-Lik: -2394.433, Max-Change: 0.00173
+Iteration: 498, Log-Lik: -2394.432, Max-Change: 0.00075
+Iteration: 499, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 500, Log-Lik: -2394.432, Max-Change: 0.00173
+Iteration: 501, Log-Lik: -2394.432, Max-Change: 0.00075
+Iteration: 502, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 503, Log-Lik: -2394.432, Max-Change: 0.00173
+Iteration: 504, Log-Lik: -2394.432, Max-Change: 0.00075
+Iteration: 505, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 506, Log-Lik: -2394.432, Max-Change: 0.00173
+Iteration: 507, Log-Lik: -2394.432, Max-Change: 0.00075
+Iteration: 508, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 509, Log-Lik: -2394.432, Max-Change: 0.00173
+Iteration: 510, Log-Lik: -2394.432, Max-Change: 0.00075
+Iteration: 511, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 512, Log-Lik: -2394.432, Max-Change: 0.00173
+Iteration: 513, Log-Lik: -2394.432, Max-Change: 0.00075
+Iteration: 514, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 515, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 516, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 517, Log-Lik: -2394.432, Max-Change: 0.00035
+Iteration: 518, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 519, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 520, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 521, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 522, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 523, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 524, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 525, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 526, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 527, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 528, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 529, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 530, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 531, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 532, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 533, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 534, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 535, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 536, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 537, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 538, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 539, Log-Lik: -2394.432, Max-Change: 0.00172
+Iteration: 540, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 541, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 542, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 543, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 544, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 545, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 546, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 547, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 548, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 549, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 550, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 551, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 552, Log-Lik: -2394.432, Max-Change: 0.00074
+Iteration: 553, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 554, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 555, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 556, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 557, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 558, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 559, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 560, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 561, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 562, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 563, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 564, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 565, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 566, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 567, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 568, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 569, Log-Lik: -2394.432, Max-Change: 0.00171
+Iteration: 570, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 571, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 572, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 573, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 574, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 575, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 576, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 577, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 578, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 579, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 580, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 581, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 582, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 583, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 584, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 585, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 586, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 587, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 588, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 589, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 590, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 591, Log-Lik: -2394.432, Max-Change: 0.00073
+Iteration: 592, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 593, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 594, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 595, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 596, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 597, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 598, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 599, Log-Lik: -2394.432, Max-Change: 0.00170
+Iteration: 600, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 601, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 602, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 603, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 604, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 605, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 606, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 607, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 608, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 609, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 610, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 611, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 612, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 613, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 614, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 615, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 616, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 617, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 618, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 619, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 620, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 621, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 622, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 623, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 624, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 625, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 626, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 627, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 628, Log-Lik: -2394.432, Max-Change: 0.00034
+Iteration: 629, Log-Lik: -2394.432, Max-Change: 0.00169
+Iteration: 630, Log-Lik: -2394.432, Max-Change: 0.00072
+Iteration: 631, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 632, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 633, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 634, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 635, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 636, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 637, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 638, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 639, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 640, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 641, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 642, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 643, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 644, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 645, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 646, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 647, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 648, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 649, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 650, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 651, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 652, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 653, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 654, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 655, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 656, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 657, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 658, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 659, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 660, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 661, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 662, Log-Lik: -2394.431, Max-Change: 0.00168
+Iteration: 663, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 664, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 665, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 666, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 667, Log-Lik: -2394.431, Max-Change: 0.00034
+Iteration: 668, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 669, Log-Lik: -2394.431, Max-Change: 0.00071
+Iteration: 670, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 671, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 672, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 673, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 674, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 675, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 676, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 677, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 678, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 679, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 680, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 681, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 682, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 683, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 684, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 685, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 686, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 687, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 688, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 689, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 690, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 691, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 692, Log-Lik: -2394.431, Max-Change: 0.00167
+Iteration: 693, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 694, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 695, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 696, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 697, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 698, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 699, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 700, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 701, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 702, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 703, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 704, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 705, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 706, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 707, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 708, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 709, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 710, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 711, Log-Lik: -2394.431, Max-Change: 0.00070
+Iteration: 712, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 713, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 714, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 715, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 716, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 717, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 718, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 719, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 720, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 721, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 722, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 723, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 724, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 725, Log-Lik: -2394.431, Max-Change: 0.00166
+Iteration: 726, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 727, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 728, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 729, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 730, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 731, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 732, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 733, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 734, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 735, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 736, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 737, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 738, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 739, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 740, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 741, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 742, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 743, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 744, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 745, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 746, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 747, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 748, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 749, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 750, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 751, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 752, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 753, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 754, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 755, Log-Lik: -2394.431, Max-Change: 0.00165
+Iteration: 756, Log-Lik: -2394.431, Max-Change: 0.00069
+Iteration: 757, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 758, Log-Lik: -2394.431, Max-Change: 0.00164
+Iteration: 759, Log-Lik: -2394.431, Max-Change: 0.00068
+Iteration: 760, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 761, Log-Lik: -2394.431, Max-Change: 0.00164
+Iteration: 762, Log-Lik: -2394.431, Max-Change: 0.00068
+Iteration: 763, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 764, Log-Lik: -2394.431, Max-Change: 0.00164
+Iteration: 765, Log-Lik: -2394.431, Max-Change: 0.00068
+Iteration: 766, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 767, Log-Lik: -2394.431, Max-Change: 0.00164
+Iteration: 768, Log-Lik: -2394.431, Max-Change: 0.00068
+Iteration: 769, Log-Lik: -2394.431, Max-Change: 0.00033
+Iteration: 770, Log-Lik: -2394.431, Max-Change: 0.00164
+Iteration: 771, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 772, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 773, Log-Lik: -2394.430, Max-Change: 0.00164
+Iteration: 774, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 775, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 776, Log-Lik: -2394.430, Max-Change: 0.00164
+Iteration: 777, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 778, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 779, Log-Lik: -2394.430, Max-Change: 0.00164
+Iteration: 780, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 781, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 782, Log-Lik: -2394.430, Max-Change: 0.00164
+Iteration: 783, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 784, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 785, Log-Lik: -2394.430, Max-Change: 0.00164
+Iteration: 786, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 787, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 788, Log-Lik: -2394.430, Max-Change: 0.00164
+Iteration: 789, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 790, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 791, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 792, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 793, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 794, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 795, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 796, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 797, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 798, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 799, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 800, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 801, Log-Lik: -2394.430, Max-Change: 0.00068
+Iteration: 802, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 803, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 804, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 805, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 806, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 807, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 808, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 809, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 810, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 811, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 812, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 813, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 814, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 815, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 816, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 817, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 818, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 819, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 820, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 821, Log-Lik: -2394.430, Max-Change: 0.00163
+Iteration: 822, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 823, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 824, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 825, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 826, Log-Lik: -2394.430, Max-Change: 0.00033
+Iteration: 827, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 828, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 829, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 830, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 831, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 832, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 833, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 834, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 835, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 836, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 837, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 838, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 839, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 840, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 841, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 842, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 843, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 844, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 845, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 846, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 847, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 848, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 849, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 850, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 851, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 852, Log-Lik: -2394.430, Max-Change: 0.00067
+Iteration: 853, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 854, Log-Lik: -2394.430, Max-Change: 0.00162
+Iteration: 855, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 856, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 857, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 858, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 859, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 860, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 861, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 862, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 863, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 864, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 865, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 866, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 867, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 868, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 869, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 870, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 871, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 872, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 873, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 874, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 875, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 876, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 877, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 878, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 879, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 880, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 881, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 882, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 883, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 884, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 885, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 886, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 887, Log-Lik: -2394.430, Max-Change: 0.00161
+Iteration: 888, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 889, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 890, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 891, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 892, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 893, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 894, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 895, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 896, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 897, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 898, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 899, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 900, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 901, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 902, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 903, Log-Lik: -2394.430, Max-Change: 0.00066
+Iteration: 904, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 905, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 906, Log-Lik: -2394.430, Max-Change: 0.00065
+Iteration: 907, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 908, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 909, Log-Lik: -2394.430, Max-Change: 0.00065
+Iteration: 910, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 911, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 912, Log-Lik: -2394.430, Max-Change: 0.00065
+Iteration: 913, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 914, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 915, Log-Lik: -2394.430, Max-Change: 0.00065
+Iteration: 916, Log-Lik: -2394.430, Max-Change: 0.00032
+Iteration: 917, Log-Lik: -2394.430, Max-Change: 0.00160
+Iteration: 918, Log-Lik: -2394.430, Max-Change: 0.00065
+Iteration: 919, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 920, Log-Lik: -2394.429, Max-Change: 0.00160
+Iteration: 921, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 922, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 923, Log-Lik: -2394.429, Max-Change: 0.00160
+Iteration: 924, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 925, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 926, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 927, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 928, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 929, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 930, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 931, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 932, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 933, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 934, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 935, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 936, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 937, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 938, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 939, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 940, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 941, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 942, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 943, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 944, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 945, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 946, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 947, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 948, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 949, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 950, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 951, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 952, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 953, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 954, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 955, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 956, Log-Lik: -2394.429, Max-Change: 0.00159
+Iteration: 957, Log-Lik: -2394.429, Max-Change: 0.00065
+Iteration: 958, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 959, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 960, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 961, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 962, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 963, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 964, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 965, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 966, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 967, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 968, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 969, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 970, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 971, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 972, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 973, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 974, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 975, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 976, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 977, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 978, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 979, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 980, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 981, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 982, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 983, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 984, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 985, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 986, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 987, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 988, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 989, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 990, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 991, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 992, Log-Lik: -2394.429, Max-Change: 0.00158
+Iteration: 993, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 994, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 995, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 996, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 997, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 998, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 999, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1000, Log-Lik: -2394.429, Max-Change: 0.00032
+Iteration: 1001, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1002, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1003, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1004, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1005, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1006, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1007, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1008, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1009, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1010, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1011, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1012, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1013, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1014, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1015, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1016, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1017, Log-Lik: -2394.429, Max-Change: 0.00064
+Iteration: 1018, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1019, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1020, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1021, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1022, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1023, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1024, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1025, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1026, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1027, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1028, Log-Lik: -2394.429, Max-Change: 0.00157
+Iteration: 1029, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1030, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1031, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1032, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1033, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1034, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1035, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1036, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1037, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1038, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1039, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1040, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1041, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1042, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1043, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1044, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1045, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1046, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1047, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1048, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1049, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1050, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1051, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1052, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1053, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1054, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1055, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1056, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1057, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1058, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1059, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1060, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1061, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1062, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1063, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1064, Log-Lik: -2394.429, Max-Change: 0.00156
+Iteration: 1065, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1066, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1067, Log-Lik: -2394.429, Max-Change: 0.00155
+Iteration: 1068, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1069, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1070, Log-Lik: -2394.429, Max-Change: 0.00155
+Iteration: 1071, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1072, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1073, Log-Lik: -2394.429, Max-Change: 0.00155
+Iteration: 1074, Log-Lik: -2394.429, Max-Change: 0.00063
+Iteration: 1075, Log-Lik: -2394.429, Max-Change: 0.00031
+Iteration: 1076, Log-Lik: -2394.429, Max-Change: 0.00155
+Iteration: 1077, Log-Lik: -2394.428, Max-Change: 0.00063
+Iteration: 1078, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1079, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1080, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1081, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1082, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1083, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1084, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1085, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1086, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1087, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1088, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1089, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1090, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1091, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1092, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1093, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1094, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1095, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1096, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1097, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1098, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1099, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1100, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1101, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1102, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1103, Log-Lik: -2394.428, Max-Change: 0.00155
+Iteration: 1104, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1105, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1106, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1107, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1108, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1109, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1110, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1111, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1112, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1113, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1114, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1115, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1116, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1117, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1118, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1119, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1120, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1121, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1122, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1123, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1124, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1125, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1126, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1127, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1128, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1129, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1130, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1131, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1132, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1133, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1134, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1135, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1136, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1137, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1138, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1139, Log-Lik: -2394.428, Max-Change: 0.00154
+Iteration: 1140, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1141, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1142, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1143, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1144, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1145, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1146, Log-Lik: -2394.428, Max-Change: 0.00062
+Iteration: 1147, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1148, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1149, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1150, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1151, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1152, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1153, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1154, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1155, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1156, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1157, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1158, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1159, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1160, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1161, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1162, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1163, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1164, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1165, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1166, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1167, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1168, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1169, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1170, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1171, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1172, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1173, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1174, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1175, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1176, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1177, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1178, Log-Lik: -2394.428, Max-Change: 0.00153
+Iteration: 1179, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1180, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1181, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1182, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1183, Log-Lik: -2394.428, Max-Change: 0.00031
+Iteration: 1184, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1185, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1186, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1187, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1188, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1189, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1190, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1191, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1192, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1193, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1194, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1195, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1196, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1197, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1198, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1199, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1200, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1201, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1202, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1203, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1204, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1205, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1206, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1207, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1208, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1209, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1210, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1211, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1212, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1213, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1214, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1215, Log-Lik: -2394.428, Max-Change: 0.00061
+Iteration: 1216, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1217, Log-Lik: -2394.428, Max-Change: 0.00152
+Iteration: 1218, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1219, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1220, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1221, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1222, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1223, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1224, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1225, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1226, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1227, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1228, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1229, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1230, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1231, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1232, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1233, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1234, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1235, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1236, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1237, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1238, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1239, Log-Lik: -2394.428, Max-Change: 0.00060
+Iteration: 1240, Log-Lik: -2394.428, Max-Change: 0.00030
+Iteration: 1241, Log-Lik: -2394.428, Max-Change: 0.00151
+Iteration: 1242, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1243, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1244, Log-Lik: -2394.427, Max-Change: 0.00151
+Iteration: 1245, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1246, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1247, Log-Lik: -2394.427, Max-Change: 0.00151
+Iteration: 1248, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1249, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1250, Log-Lik: -2394.427, Max-Change: 0.00151
+Iteration: 1251, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1252, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1253, Log-Lik: -2394.427, Max-Change: 0.00151
+Iteration: 1254, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1255, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1256, Log-Lik: -2394.427, Max-Change: 0.00151
+Iteration: 1257, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1258, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1259, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1260, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1261, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1262, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1263, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1264, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1265, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1266, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1267, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1268, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1269, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1270, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1271, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1272, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1273, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1274, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1275, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1276, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1277, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1278, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1279, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1280, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1281, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1282, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1283, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1284, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1285, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1286, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1287, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1288, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1289, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1290, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1291, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1292, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1293, Log-Lik: -2394.427, Max-Change: 0.00060
+Iteration: 1294, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1295, Log-Lik: -2394.427, Max-Change: 0.00150
+Iteration: 1296, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1297, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1298, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1299, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1300, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1301, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1302, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1303, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1304, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1305, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1306, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1307, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1308, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1309, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1310, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1311, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1312, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1313, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1314, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1315, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1316, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1317, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1318, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1319, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1320, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1321, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1322, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1323, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1324, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1325, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1326, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1327, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1328, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1329, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1330, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1331, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1332, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1333, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1334, Log-Lik: -2394.427, Max-Change: 0.00149
+Iteration: 1335, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1336, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1337, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1338, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1339, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1340, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1341, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1342, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1343, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1344, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1345, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1346, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1347, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1348, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1349, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1350, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1351, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1352, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1353, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1354, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1355, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1356, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1357, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1358, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1359, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1360, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1361, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1362, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1363, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1364, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1365, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1366, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1367, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1368, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1369, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1370, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1371, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1372, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1373, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1374, Log-Lik: -2394.427, Max-Change: 0.00059
+Iteration: 1375, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1376, Log-Lik: -2394.427, Max-Change: 0.00148
+Iteration: 1377, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1378, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1379, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1380, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1381, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1382, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1383, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1384, Log-Lik: -2394.427, Max-Change: 0.00030
+Iteration: 1385, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1386, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1387, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1388, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1389, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1390, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1391, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1392, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1393, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1394, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1395, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1396, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1397, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1398, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1399, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1400, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1401, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1402, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1403, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1404, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1405, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1406, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1407, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1408, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1409, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1410, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1411, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1412, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1413, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1414, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1415, Log-Lik: -2394.427, Max-Change: 0.00147
+Iteration: 1416, Log-Lik: -2394.427, Max-Change: 0.00058
+Iteration: 1417, Log-Lik: -2394.427, Max-Change: 0.00029
+Iteration: 1418, Log-Lik: -2394.426, Max-Change: 0.00147
+Iteration: 1419, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1420, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1421, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1422, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1423, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1424, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1425, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1426, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1427, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1428, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1429, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1430, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1431, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1432, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1433, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1434, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1435, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1436, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1437, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1438, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1439, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1440, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1441, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1442, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1443, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1444, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1445, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1446, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1447, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1448, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1449, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1450, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1451, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1452, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1453, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1454, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1455, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1456, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1457, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1458, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1459, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1460, Log-Lik: -2394.426, Max-Change: 0.00146
+Iteration: 1461, Log-Lik: -2394.426, Max-Change: 0.00058
+Iteration: 1462, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1463, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1464, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1465, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1466, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1467, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1468, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1469, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1470, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1471, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1472, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1473, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1474, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1475, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1476, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1477, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1478, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1479, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1480, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1481, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1482, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1483, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1484, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1485, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1486, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1487, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1488, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1489, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1490, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1491, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1492, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1493, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1494, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1495, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1496, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1497, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1498, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1499, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1500, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1501, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1502, Log-Lik: -2394.426, Max-Change: 0.00145
+Iteration: 1503, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1504, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1505, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1506, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1507, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1508, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1509, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1510, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1511, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1512, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1513, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1514, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1515, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1516, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1517, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1518, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1519, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1520, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1521, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1522, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1523, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1524, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1525, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1526, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1527, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1528, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1529, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1530, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1531, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1532, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1533, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1534, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1535, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1536, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1537, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1538, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1539, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1540, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1541, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1542, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1543, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1544, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1545, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1546, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1547, Log-Lik: -2394.426, Max-Change: 0.00144
+Iteration: 1548, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1549, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1550, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1551, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1552, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1553, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1554, Log-Lik: -2394.426, Max-Change: 0.00057
+Iteration: 1555, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1556, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1557, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1558, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1559, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1560, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1561, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1562, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1563, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1564, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1565, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1566, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1567, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1568, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1569, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1570, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1571, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1572, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1573, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1574, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1575, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1576, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1577, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1578, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1579, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1580, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1581, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1582, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1583, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1584, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1585, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1586, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1587, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1588, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1589, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1590, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1591, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1592, Log-Lik: -2394.426, Max-Change: 0.00143
+Iteration: 1593, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1594, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1595, Log-Lik: -2394.426, Max-Change: 0.00142
+Iteration: 1596, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1597, Log-Lik: -2394.426, Max-Change: 0.00029
+Iteration: 1598, Log-Lik: -2394.426, Max-Change: 0.00142
+Iteration: 1599, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1600, Log-Lik: -2394.426, Max-Change: 0.00028
+Iteration: 1601, Log-Lik: -2394.426, Max-Change: 0.00142
+Iteration: 1602, Log-Lik: -2394.426, Max-Change: 0.00056
+Iteration: 1603, Log-Lik: -2394.426, Max-Change: 0.00028
+Iteration: 1604, Log-Lik: -2394.426, Max-Change: 0.00142
+Iteration: 1605, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1606, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1607, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1608, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1609, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1610, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1611, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1612, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1613, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1614, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1615, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1616, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1617, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1618, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1619, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1620, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1621, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1622, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1623, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1624, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1625, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1626, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1627, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1628, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1629, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1630, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1631, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1632, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1633, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1634, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1635, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1636, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1637, Log-Lik: -2394.425, Max-Change: 0.00142
+Iteration: 1638, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1639, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1640, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1641, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1642, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1643, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1644, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1645, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1646, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1647, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1648, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1649, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1650, Log-Lik: -2394.425, Max-Change: 0.00056
+Iteration: 1651, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1652, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1653, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1654, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1655, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1656, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1657, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1658, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1659, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1660, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1661, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1662, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1663, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1664, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1665, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1666, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1667, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1668, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1669, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1670, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1671, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1672, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1673, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1674, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1675, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1676, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1677, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1678, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1679, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1680, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1681, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1682, Log-Lik: -2394.425, Max-Change: 0.00141
+Iteration: 1683, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1684, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1685, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1686, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1687, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1688, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1689, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1690, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1691, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1692, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1693, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1694, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1695, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1696, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1697, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1698, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1699, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1700, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1701, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1702, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1703, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1704, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1705, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1706, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1707, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1708, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1709, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1710, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1711, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1712, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1713, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1714, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1715, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1716, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1717, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1718, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1719, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1720, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1721, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1722, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1723, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1724, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1725, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1726, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1727, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1728, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1729, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1730, Log-Lik: -2394.425, Max-Change: 0.00140
+Iteration: 1731, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1732, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1733, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1734, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1735, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1736, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1737, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1738, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1739, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1740, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1741, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1742, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1743, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1744, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1745, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1746, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1747, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1748, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1749, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1750, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1751, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1752, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1753, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1754, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1755, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1756, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1757, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1758, Log-Lik: -2394.425, Max-Change: 0.00055
+Iteration: 1759, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1760, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1761, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1762, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1763, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1764, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1765, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1766, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1767, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1768, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1769, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1770, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1771, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1772, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1773, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1774, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1775, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1776, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1777, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1778, Log-Lik: -2394.425, Max-Change: 0.00139
+Iteration: 1779, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1780, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1781, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1782, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1783, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1784, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1785, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1786, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1787, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1788, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1789, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1790, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1791, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1792, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1793, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1794, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1795, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1796, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1797, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1798, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1799, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1800, Log-Lik: -2394.425, Max-Change: 0.00054
+Iteration: 1801, Log-Lik: -2394.425, Max-Change: 0.00028
+Iteration: 1802, Log-Lik: -2394.425, Max-Change: 0.00138
+Iteration: 1803, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1804, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1805, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1806, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1807, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1808, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1809, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1810, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1811, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1812, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1813, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1814, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1815, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1816, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1817, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1818, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1819, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1820, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1821, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1822, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1823, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1824, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1825, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1826, Log-Lik: -2394.424, Max-Change: 0.00138
+Iteration: 1827, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1828, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1829, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1830, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1831, Log-Lik: -2394.424, Max-Change: 0.00028
+Iteration: 1832, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1833, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1834, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1835, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1836, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1837, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1838, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1839, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1840, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1841, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1842, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1843, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1844, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1845, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1846, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1847, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1848, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1849, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1850, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1851, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1852, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1853, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1854, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1855, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1856, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1857, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1858, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1859, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1860, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1861, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1862, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1863, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1864, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1865, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1866, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1867, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1868, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1869, Log-Lik: -2394.424, Max-Change: 0.00054
+Iteration: 1870, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1871, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1872, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1873, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1874, Log-Lik: -2394.424, Max-Change: 0.00137
+Iteration: 1875, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1876, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1877, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1878, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1879, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1880, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1881, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1882, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1883, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1884, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1885, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1886, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1887, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1888, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1889, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1890, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1891, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1892, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1893, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1894, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1895, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1896, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1897, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1898, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1899, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1900, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1901, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1902, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1903, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1904, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1905, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1906, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1907, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1908, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1909, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1910, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1911, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1912, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1913, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1914, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1915, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1916, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1917, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1918, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1919, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1920, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1921, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1922, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1923, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1924, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1925, Log-Lik: -2394.424, Max-Change: 0.00136
+Iteration: 1926, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1927, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1928, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1929, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1930, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1931, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1932, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1933, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1934, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1935, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1936, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1937, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1938, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1939, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1940, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1941, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1942, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1943, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1944, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1945, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1946, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1947, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1948, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1949, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1950, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1951, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1952, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1953, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1954, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1955, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1956, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1957, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1958, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1959, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1960, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1961, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1962, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1963, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1964, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1965, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1966, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1967, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1968, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1969, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1970, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1971, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1972, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1973, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1974, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1975, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1976, Log-Lik: -2394.424, Max-Change: 0.00135
+Iteration: 1977, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1978, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1979, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1980, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1981, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1982, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1983, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1984, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1985, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1986, Log-Lik: -2394.424, Max-Change: 0.00053
+Iteration: 1987, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1988, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1989, Log-Lik: -2394.424, Max-Change: 0.00052
+Iteration: 1990, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1991, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1992, Log-Lik: -2394.424, Max-Change: 0.00052
+Iteration: 1993, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1994, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1995, Log-Lik: -2394.424, Max-Change: 0.00052
+Iteration: 1996, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 1997, Log-Lik: -2394.424, Max-Change: 0.00134
+Iteration: 1998, Log-Lik: -2394.424, Max-Change: 0.00052
+Iteration: 1999, Log-Lik: -2394.424, Max-Change: 0.00027
+Iteration: 2000, Log-Lik: -2394.424, Max-Change: 0.00134</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>EM cycles terminated after 2000 iterations.</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="brief-theory-of-latent-variable-models" class="level1">
+<h1>brief theory of latent variable models</h1>
+<ul>
+<li>assumptions latent variable models: local item dependency, …</li>
+<li>assumptions IRT models, …</li>
+<li>different models to account for violations of assumptions, …</li>
+</ul>
+</section>
+<section id="check-assumptions-of-such-models" class="level1">
+<h1>check assumptions of such models</h1>
+<section id="check-for-unidimensionality" class="level2">
+<h2 class="anchored" data-anchor-id="check-for-unidimensionality">check for unidimensionality</h2>
+<ul>
+<li>Phi Coefficient, followed by EFA</li>
+<li>test model again for subset of uni-dimensional items</li>
+</ul>
+</section>
+<section id="num-items-to-num-persons" class="level2">
+<h2 class="anchored" data-anchor-id="num-items-to-num-persons">num items to num persons</h2>
+<ul>
+<li>small simulation study</li>
+<li>unstable if items &gt;&gt; persons</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
