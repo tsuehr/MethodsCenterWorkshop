@@ -152,7 +152,7 @@ library(polycor)
 
 
 data_matrix <- data[,1:40]  # Replace with your actual data
-polychoric_matrix <- polycor::hetcor(data_matrix)$correlations
+# polychoric_matrix <- polycor::hetcor(data_matrix)$correlations
 
 psych::corPlot(r = polychoric_matrix)
 psych::corPlot(r = cor(data_matrix)) # simply use Phi coefficient

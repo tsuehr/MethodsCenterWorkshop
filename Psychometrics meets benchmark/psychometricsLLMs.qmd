@@ -6,6 +6,7 @@ format:
     toc: true
     toc-depth: 4
     html-math-method: katex
+bibliography: subLibrary.bib
 ---
 
 
@@ -15,6 +16,175 @@ format:
 ## global variables: 
 # only if needed
 ```
+
+
+# Theory
+
+
+
+## Lines of arguments
+
+**Contradictions in the fields of Psychology <-> Machine Learning:**
+
+
+From my perspective, particularly within specific sub-disciplines of Psychology, the primary objective of statistical methods is to elucidate psychological mechanisms. For instance, in Experimental Psychology (Allgemeine Psychologie), researchers manipulate specific experimental conditions (independent variables) and measure the effects of these manipulations, ideally within randomized controlled trials (RCTs). Disciplines like Machine Learning, prioritize however prediction. Despite these differences, both fields can benefit from one another, as highlighted by @yarkoniChoosingPredictionExplanation2017.
+
+> Psychology has historically been concerned, first and foremost, with explaining the causal mechanisms that give rise to behavior. Randomized, tightly controlled experiments are enshrined as the gold standard of psychological research, and there are endless investigations of the various mediating and moderating variables that govern various behaviors. We argue that psychology’s near-total focus on explaining the causes of behavior has led much of the field to be populated by research programs that provide intricate theories of psychological mechanism but that have little (or unknown) ability to predict future behaviors with any appreciable accuracy. We propose that principles and techniques from the field of machine learning can help psychology become a more predictive science. We review some of the fundamental concepts and tools of machine learning and point out examples where these concepts have been used to conduct interesting and important psychological research that focuses on predictive research questions. We suggest that an increased focus on prediction, rather than explanation, can ultimately lead us to greater understanding of behavior.
+
+
+However, an intense focus on prediction - especially when applying "black box" models - could spark criticism within the field. Potential critiques include:
+
+- Lack of Interpretability: Black box models often provide little to no insight into the underlying mechanisms driving predictions, which contradicts the psychological emphasis on understanding (causal) relationships.
+- Theoretical Disconnect: Machine learning models may not align with (or care of) established psychological theories, leading to a fragmentation between predictive accuracy and theoretical coherence.
+- Ethical Concerns: The deployment of predictive models without a clear understanding of their decision-making processes can lead to ethical dilemmas, particularly in areas such as clinical psychology.
+- ...
+
+
+***
+
+Combing methods from multiple fields it is possible to adopt a more integrative approach, when investigating research questions/ analyzing data: it is possible to categorize types of research questions and their corresponding statistical models (e.g., EFA for exploration, ANOVA in context of an RCT to discover a "causal" effect, machine learning to maximize prediction, cluster analyses for identifying homogeneous subgroups,...) and every method can give important insights:
+
+
+![Data Analysis Flowchart by @leekWhatQuestion2015](pictures/dataAnalysisFlowchart.JPG){width=80%}
+
+
+Contrary to the perception of data analysis as a linear process, it is inherently a highly iterative process where insights gained at each step lead to re-evaluating and refining previous steps before moving forward. This cyclical approach ensures continuous learning and adjustment, in contrast to a seemingly straightforward, linear application of specific statistical models like a cooking recipe: 
+
+
+![Epicycles of Analysis by @pengArtDataScience2016](pictures/epicyclesofAnalysis.JPG){width=80%, height=400px}
+
+
+***
+
+To summarize, in my opinion several factors may contribute to the (at least implicit or often pragmatic driven) rejection of methodologies from other fields and their respective "research philosophies". These factors reflect both structural and cultural pressures within academia:
+
+- **Pressure and Working Conditions in Academia**: Researchers, particularly early-career scientists, face significant pressure to "publish or perish," often under challenging working conditions. For example:
+  + In Germany, as reported by @konsortiumbundesberichtwissenschaftlichernachwuchsBundesberichtWissenschaftlicherNachwuchs2021, approximately 90% of early-career researchers are employed on fixed-term contracts, with PhD students averaging contract lengths of only 22 months. Further despite a strong desire to start families, particularly among women, career uncertainties, poor work-life balance, and financial instability are mentioned as key reasons for the high rate of childlessness among young female researchers [see also @sengewaldFamiliengerechteKarrieremoglichkeitenPsychologischen2024]
+  + Internationally, similar challenges have been highlighted in recent work, such as @rahalQualityResearchNeeds2023, which discusses ways to redesign academic systems, emphasizing the role of permanent employment
+- **Conservatism in Methodology**: A common response to the pressure to "publish or perish" is to adhere to familiar statistical models, technological tools, and the prevailing working styles of one’s research group. This methodological conservatism helps reduce the risks associated with exploring unfamiliar or cross-disciplinary approaches, but it may limit innovation and interdisciplinary collaboration. Next to limited contracts and insecure working conditions, this methodological rigidity could also be explained by multiple sociological theories:
+  + Bourdieu’s Theory of Fields suggests that the academic field operates under specific power dynamics, where certain styles of working gain dominance based on their alignment with the interests of those in power (in the center of the field). Further academics feel pressure to conform to established norms within their discipline [@fligsteinTheoryFields2015], see also YouTube Video [" Field theory - Pierre Bourdieu"](https://www.youtube.com/watch?v=7FXPnkwSCyE){.external target="_blank"}
+  + Luhmann’s Theory of the Differentiation of Social Systems posits that academia, like other social systems, differentiates itself through specialized methodologies that reinforce the boundaries between disciplines [@luhmannSozialeSystemeGrundriss1987]
+  + Historical factors, including power-related dynamics, also play a role. For instance, Wallerstein’s work on European Universalism discusses how power structures have historically influenced which ideas and methodologies become dominant in different fields [@wallersteinEuropeanUniversalismRhetoric2006]
+
+
+
+## brief theory of latent variable models
+
+In context of answering survey question the Cognitive Aspects of Survey Methodology (also called „Optimizing-Satisficing-Model“) tries to explain how people finally arrive at a response, which is a great heuristic for identifying possible sources of error [@tourangeauPsychologySurveyResponse2000, ; @moosbruggerTesttheorieUndFragebogenkonstruktion2020]:
+
+![Cognitive Aspects of Survey Methodology](pictures/CASM_model.JPG){width=80%}
+
+
+Despite not knowing the exact processes of answering a question (black box), we fundamentally assume that the answer / reporting depends on a **score on a latent variable**:
+
+
+![Epicycles of Analysis by @pengArtDataScience2016](pictures/testmodel.jpg){width=80%}
+
+
+> the central task of test theory is to determine the relationship between test behaviour and the (psychological) characteristic to be assessed
+
+
+**Latent variable definition**: random variables whose realized values are hidden [@bollenLatentVariablesPsychology2002; @borsboomLatentVariableTheory2008]
+
+
+A possible operationalisation of a latent variable is a linear measurement model with the equation $Y = \lambda * \eta + \epsilon$.
+
+![basic measurment model](pictures/theory_measurmentmodell_SEM.jpg){width=80%}
+
+this corresponds to the fundamental equation of Classical Test Theory: 
+$$Y = T + \epsilon$$
+
+
+$\rightarrow$ models which are dealing with latent variables are called **Latent Variable Models** [@skrondalGeneralizedLatentVariable2004; @skrondalLatentVariableModelling2007], whereby the central aim of latent variable models is to infer unobservable (latent) psychological traits or abilities from responses to test items
+
+![Latent variable models @skrondalLatentVariableModelling2007](pictures/latent_variable_models_skrondal2007.JPG){width=80%}
+
+***
+
+**theoretical aspects "What is a Latent Variable?"**
+
+- the theoretical status of latent variables has not been clarified [@schurigLatenteVariablenmodelleEmpirischen2017]
+  + are these variables representations of real entities or just useful inventions?
+  + Advantage: use of latent variables allow more generalisable reasoning than manifest variables
+- latent variables need a substantive scientific foundation, whereby the bridging problem between observed and latent variable must be solved by theoretical assumptions and statistical modelling
+
+
+centrally by assuming the **local independence assumption** in latent variable models it is assumed that, once the latent variable (e.g., a psychological trait or ability) is accounted for, the observed variables (such as responses to test items) are statistically independent of each other. This means that any correlation between the observed variables is fully explained by the latent variable, and no further direct relationships exist between the observed variables. In essence, the latent variable "absorbs" the shared variance, allowing the model to "get rid" of any inter-dependencies among the observed variables, simplifying the analysis [@skrondalLatentVariableModelling2007].
+
+$$
+Pr(y_j \mid \eta_j) = \prod_{i=1}^{n} Pr(y_{ij} \mid \eta_j)
+$$
+
+This assumption do not hold in more complex data sets (e.g., multi-dimensionality, response styles, ...) and by more complex models (e.g., the bifactor model) the variance of indicators of single measurment models (CFAs) is divided into common and unique variance:
+
+![Variance splitting in CFAs](pictures/Variancesplitting_CFA.JPG){width=80%}
+
+The variance shared between the indicators is the commonality; the remaining variance is the unique variance, which is divided into indicator-specific method variance (specific) and measurement variance (error).
+
+***
+
+**quality criteria of measurments**
+
+
+measurements, test administration should be carried out taking into account three central quality criteria of tests, which build on each other (no reliable measurement possible without objectivity, etc.):
+
+$$\text{objectivity} \rightarrow \text{reliability} \rightarrow \text{validity} $$ 
+
+- **Objectivity**: Test score is objective if it is independent of any influences outside the tested person (e.g., situational conditions, experimenter – all exogenous variables whose covariance structure is not explained by the statistical model, including error terms, unobserved influencing variables, and exogenous latent constructs)
+  + Implementation objectivity (Durchführungsobjektivität): Standardization of implementation conditions (writing a test manual, training test leader, standardization of all other conditions).
+  + Objectivity of evaluation (Auswertungsobjektivität): The interpretation of the test result is not dependent on the person who evaluates the test (measurable by inter-rater reliability, such as Kendall's coefficient of concordance).
+  + Objectivity of interpretation (Interpretationsobjektivität): Different test users come to the same conclusions with identical test scores.
+
+
+- **Reliability**: The extent to which a test measures what it is intended to measure. The focus here is on measurement accuracy. Reliability is demonstrated theoretically by the fact that repeated measurements under the same conditions produce the same measurement results (the central contribution to the development of reliability measurement is made by classical test theory, which establishes a theory of measurement error).
+  - Reliability can be estimated by different methods, often as a measure of internal consistency - Cronbach's Alpha (a measure of how items in a scale correlate with one another) is commonly used.
+
+
+> The classical test theory assumes that the test performance of a person on the question $i$ is composed of $x_{i} = \tau_{i} + \epsilon_{i}$. Here $\tau_{i}$ corresponds to the person's true score on question $i$, which is composed of an item response $x_{i}$ and the error $\epsilon_{i}$, where the error is unbiased (if there are systematic aspects in the errors, apply models with can do variance splitting)
+
+
+- **Validity**: A test is considered valid if it actually measures the characteristic it is supposed to measure and not some other characteristic. The measurement of validity is done in two steps:
+  + Via structure-searching (such as exploratory factor analysis) and structure-testing (such as confirmatory factor analysis) procedures, construct validity is determined. This indicates the extent to which conclusions can be drawn from test results, for example, about psychological personality traits.
+  + The agreement of the results of the individual constructs should be high with constructs that measure the same or similar characteristics (convergent validity), and the agreement with results from constructs that measure other characteristics should be low (discriminant validity). This can be analyzed via (latent) correlations, see also *construct validity* [@cronbachConstructValidityPsychological1955]
+  
+
+Importantly more recently there is also an **argument-based approach to validation**. To validate an interpretation or use of measurements is to evaluate the rationale, or argument, for the proposed conclusions and decisions ... Ultimately, the need for validation derives from the scientific and social requirement that public claims and decisions need to be justified:
+
+- *interpretive argument*: specifies the proposed interpretations and applications of assessment results by laying out a network of inferences and assumptions leading from the observed performances to the conclusions and decisions based on the assessment scores
+- *validity argument*: provides an evaluation of the interpretive argument’s coherence and the plausibility of its inferences and assumptions
+
+
+
+A variety of further quality criteria of indicators were developed by the **„Key National Indicators Initiative“** (outdated, ~ 2005):
+
+![Key National Indicators Initiative, by @grovesTotalSurveyError2010](pictures/indicatorqualitycriteriaNII.png){width=100%}
+
+To reflect on all possible factors influencing the quality of a survey, there is also the concept of the **Total Survey Error** [see @biemerTotalSurveyError2017; @grovesTotalSurveyError2010].
+
+
+
+
+## assumptions 1PL, 2PL model
+
+Before running any statistical model, normally - if model is sensitive to the violation of a specific assumption - the assumptions of the models are tested; for the Raschmodell (1PL) we have the following assumptions (aus Julius Masterarbeit):
+
+* Eindimensionalität: Die Lösungswahrscheinlichkeit hängt nur von einem latenten Merkmal ab und ist durch die Modellparameter $\theta_v$, $\beta_i$ bestimmt. Neben den Modellparametern liegen keine weiteren beeinflussenden Variablen $\varphi$ vor: $P(X_{vi} = 1 \mid \theta_v, \beta_i, \varphi) = (X_{vi} = 1 \mid \theta_v, \beta_i)$
+* Lokale stochastische Unabhängigkeit: Wenn die Personenfähigkeit $\theta_v$ auf einem Wert konstant gehalten wird, verschwindet die Korrelation zwischen jedem möglichen Itempaar $X_{vi}$, $X_{vj}$ im Test (wobei $i \neq j$): $P(X_{vi} \perp X_{vj}  \mid \theta_v), \forall \,\, i, j$
+* Suffizienz der Summenscores: Die Summenscores $R_v = \sum_{i=1}^{k} X_{vi}$ eines Tests der Länge $k$ sind ausreichend für die Schätzung der Personenfähigkeit einer Person $\theta_v$. Das Gleiche gilt analog für die Itemscores  $C_i = \sum_{v=1}^{n} X_{vi}$
+* Monotonie: Die Lösungswahrscheinlichkeit eines Items $x_{vi}$ erhöht sich monoton mit höheren Personenfähigkeitswerten $\theta$. Je fähiger eine Person ist, desto wahrscheinlicher wird diese ein Item beantworten können. Dies drückt sich in der ICC $f(x_{vi} \mid \theta_v, \beta_i)$ wie folgt aus:  $\theta_v > \theta_w: f(x_{vi} \mid \theta_v, \beta_i) > f(x_{wi} \mid \theta_w, \beta_i), \forall \,\, \theta_v, \theta_w$
+
+
+> In the 2PL model, each item has additionally its own discrimination parameter, allowing some items to be better at differentiating between individuals with slightly different abilities.
+
+***
+
+If now the 1PL or 2PL is not fitting, this could have multiple reasons:
+
+- Multidimensionality, items are influenced by more than one latent trait
+- Poorly Fitting Items or Data, some items  behave in an unexpected or erratic manner, it may not exhibit the expected increasing probability of a correct response as ability increases, especially if the item discrimnation parameter $\alpha_i$ is estimated negative (Monotonicity violated)
+- Ceiling or Floor Effects, test contains items that are either too easy or too difficult for the population being measured, the probability of a correct response might not vary meaningfully with ability over a range of $\theta$ values.
+- ...
+
 
 
 
@@ -31,19 +201,38 @@ format:
 #> This function is a wrapper for library and require. It checks to see if a package is installed, if not it attempts to install the package
 
 require(pacman)
-p_load('mirt', 'ggplot2', 'dplyr', 'tidyr', 'parallel')
+p_load('mirt', 'ggplot2', 'dplyr', 'tidyr', 'parallel', 'psych',
+       'rpart', 'rpart.plot')
 
-
-### load data
+### load, prepare data
 setwd("data")
 
 #> long format
 data_long <- read.csv("mmlu_data.csv")
 data_long <- select(data_long, -"model")
 
+#> remove items
+items_to_remove <- data_long %>%
+  group_by(doc_id) %>%
+  summarize(mean = mean(acc), variance = var(acc)) 
+# any items which are solved by every LLM?
+cat("number of items solved by all LLMs:", sum(items_to_remove$mean == 1), "\n")
+
+items_to_remove <- items_to_remove %>%
+  filter(variance == 0) %>% 
+  select(doc_id) %>%
+  unlist() %>%
+  as.character()
+
+data_long <- data_long %>%
+  filter(!doc_id %in% items_to_remove)
+
+cat("number of items which have been removed:", length(items_to_remove), "\n")
+
+
 #> wide format
 data_wide <- spread(data_long, doc_id, acc)
-data_wide <- select(data_wide, -"model_id")
+# data_wide <- select(data_wide, -"model_id")
 ```
 
 
@@ -52,63 +241,58 @@ data_wide <- select(data_wide, -"model_id")
 ## 1PL, 2PL over subsample
 
 
-over some sets of items the 2PL model do converge:
+over some sets of items the 2PL model **do converge**:
 
 ! but, the models shows
 
 - bad item fit statistics:
-  + ...
+  + $S_{X2}$: This is the test statistic for the $S_{X2}$ test. It compares observed and expected item response patterns under the model, a high p-value (above 0.05) suggests that the item fits the model well.
+  + poor Item Fit (p-values < 0.05) for items 8, 27, 13, 22, 3
+  + item 3 has missing values (NaN) for the$S_{X2}$ test and its degrees of freedom. This could indicate a lack of variability in the responses or issues with the data for this specific item.
 - too large item difficulties and / or item discrimination parameters
 
 
 ```{r}
-########
-# sub-sample items
-########
+### sub-sample items
 set.seed(12345) # to replicate results
-setSize <- 30
-random_items <- sample(x = 1:ncol(data_wide), size = setSize, replace = FALSE)
-sub_dat <- data_wide[, random_items]
-# sub_data_wide <- data_wide[, 1:30]
 
+setSize <- 30
+
+random_items <- sample(x = 2:ncol(data_wide), size = setSize, replace = FALSE) # first variable is the model id
+sub_dat <- data_wide[, random_items]
 
 # Fit 1PL model (Rasch model)
 fit1PLa <- mirt(data = sub_dat,
                model = 1,  # one-dimensional model
-               itemtype = "Rasch")
+               itemtype = "Rasch",
+               verbose = FALSE)
 
 # Fit 2PL model
 fit2PLa <- mirt(data = sub_dat,
                model = 1,  #one-dimensional
                itemtype = "2PL",
-               technical = list(NCYCLES = 2000, SEtol = 1e-4))
-summary(fit2PLa)
+               technical = list(NCYCLES = 2000, SEtol = 1e-4),
+               verbose = FALSE)
 
 
-# Calculate item fit statistics for the 2PL model
-item_fit <- itemfit(fit2PLa)
-item_fit[order(item_fit$S_X2),]
-
-
-
+### estimated params
 item_parameters_1PL <- coef(fit1PLa, IRTpars = TRUE, simplify = TRUE)$items
 item_parameters_2PL <- coef(fit2PLa, IRTpars = TRUE, simplify = TRUE)$items
 
-# item difficulty param
+# item difficulty param "b", item discrimination param "a"
 #> 1PL
-summary(item_parameters_1PL[,"b"])
+psych::describe(x = item_parameters_1PL[,c("b", "a")])
 #> 2PL
-summary(item_parameters_2PL[,"b"])
+psych::describe(x = item_parameters_2PL[,c("b", "a")])
 
 
-# item discrimination param
-#> 1PL: X
-#> 2PL
-summary(item_parameters_2PL[,"a"])
-var(item_parameters_2PL[,"a"])
+### item fit statistics
+# Calculate item fit statistics for the 2PL model
+item_fit <- itemfit(fit2PLa)
+item_fit[order(item_fit$S_X2),]
 ```
 
-and over some sets of items the 2PL model do not converge:
+and over some sets of items the 2PL model do **do not converge**:
 
 
 ```{r}
@@ -116,38 +300,52 @@ and over some sets of items the 2PL model do not converge:
 # sub-sample items
 ########
 set.seed(11111) # to replicate results
+
 setSize <- 30
+
 random_items <- sample(x = 1:ncol(data_wide), size = setSize, replace = FALSE)
 sub_dat <- data_wide[, random_items]
-# sub_data_wide <- data_wide[, 1:30]
-
 
 # Fit 1PL model (Rasch model)
 fit1PLa <- mirt(data = sub_dat,
                model = 1,  # one-dimensional model
-               itemtype = "Rasch")
+               itemtype = "Rasch",
+               verbose = FALSE)
 
 # Fit 2PL model
 fit2PLa <- mirt(data = sub_dat,
                model = 1,  #one-dimensional
                itemtype = "2PL",
-               technical = list(NCYCLES = 2000, SEtol = 1e-4))
+               technical = list(NCYCLES = 2000, SEtol = 1e-4),
+               verbose = FALSE)
 ```
 
-
-# brief theory of latent variable models
-
-- assumptions latent variable models: local item dependency, ...
-- assumptions IRT models, ...
-- different models to account for violations of assumptions, ...
 
 # check assumptions of such models
 
 
 ## check for unidimensionality
 
-- Phi Coefficient, followed by EFA
-- test model again for subset of uni-dimensional items
+to check for the unidimensionality of the data, we can
+- compute the correlation between the items using the Phi Coefficient
+- followed by an EFA, whereby parallel analysis is applied to determine the number of factors [see recommendations for such analysis @auerswaldHowDetermineNumber2019]
+
+
+use only a subset of data, the first variable is the model id:
+
+```{r}
+cor_matrix <- cor(data_wide[,c(2:20, 70:85)]) # simply use Phi coefficient
+
+psych::corPlot(r = cor(cor_matrix)) 
+
+efa_parallel <- psych::fa.parallel(cor_matrix, fa = "fa", n.obs = nrow(data_wide), cor = "cor")
+
+
+efa_results <- psych::fa(cor_matrix, nfactors = efa_parallel$nfact, fm = "pa")
+efa_results
+
+print(efa_results$loadings)
+```
 
 
 ## num items to num persons
@@ -155,8 +353,196 @@ fit2PLa <- mirt(data = sub_dat,
 - small simulation study
 - unstable if items >> persons
 
+```{r}
+# see: https://www.r-bloggers.com/2012/12/simple-data-simulator-for-the-2pl-model/
+
+twopl.sim         <- function( nitem = 20, npers = 100 ) {
+
+  i.loc         <- rnorm( n = nitem, mean = 0, sd = 1 )
+  p.loc         <- rnorm( n = npers, mean = 0, sd = 1 )
+  i.slp         <- rlnorm( nitem, sdlog = .4 )
+
+  temp          <- matrix( rep( p.loc, length( i.loc ) ), ncol = length( i.loc ) )
+
+  logits        <- t( apply( temp  , 1, '-', i.loc) )
+  logits        <- t( apply( logits, 1, '*', i.slp) )
+
+  probabilities <- 1 / ( 1 + exp( -logits ) )
+
+  resp.prob     <- matrix( probabilities, ncol = nitem)
+
+  obs.resp      <- matrix( sapply( c(resp.prob), rbinom, n = 1, size = 1), ncol = length(i.loc) )
+
+  output        <- list()
+  output$i.loc  <- i.loc
+  output$i.slp  <- i.slp
+  output$p.loc  <- p.loc
+  output$resp   <- obs.resp
+
+  output
+}
+```
+
+
+$i << n$ (less items than persons/ LLMs):
+
+
+```{r}
+set.seed(123)
+data2pl <- twopl.sim(nitem=300,npers=3000)
+
+# Track time to fit 2PL model
+start_time <- Sys.time()
+
+fit2PL <- mirt(data = as.data.frame(data2pl$resp),
+               model = 1,  # one-dimensional
+               itemtype = "2PL", verbose = FALSE)
+
+end_time <- Sys.time()
+fit_time <- end_time - start_time
+
+# Print the time taken to fit the model
+cat("Time taken to fit the 2PL model in seconds:", fit_time, "\n")
+
+
+item_parameters_2PL <- coef(fit2PL, IRTpars = TRUE, simplify = TRUE)$items
+
+# item difficulty param
+summary(item_parameters_2PL[,"b"])
+# item discrimination param
+summary(item_parameters_2PL[,"a"])
 
 
 
+layout(matrix(c(1,2),nrow=1))
+
+plot(item_parameters_2PL[,"a"], data2pl$i.slp)
+cor(item_parameters_2PL[,"a"], data2pl$i.slp)
+
+plot(item_parameters_2PL[,"b"], data2pl$i.loc)
+cor(item_parameters_2PL[,"b"], data2pl$i.loc)
+```
 
 
+$i >> n$ (more items than persons/ LLMs):
+
+- here we have the ration 4:1
+
+
+```{r}
+set.seed(555)
+data2pl <- twopl.sim(nitem=800,npers=200)
+
+# Track time to fit 2PL model
+start_time <- Sys.time()
+
+fit2PL <- mirt(data = as.data.frame(data2pl$resp),
+               model = 1,  # one-dimensional
+               itemtype = "2PL", verbose = FALSE)
+
+end_time <- Sys.time()
+fit_time <- end_time - start_time
+
+# Print the time taken to fit the model
+cat("Time taken to fit the 2PL model in seconds:", fit_time, "\n")
+
+item_parameters_2PL <- coef(fit2PL, IRTpars = TRUE, simplify = TRUE)$items
+
+# Item difficulty param
+summary(item_parameters_2PL[,"b"])
+
+# Item discrimination param
+summary(item_parameters_2PL[,"a"])
+
+# Plots
+layout(matrix(c(1,2),nrow=1))
+
+plot(item_parameters_2PL[,"a"], data2pl$i.slp)
+cor(item_parameters_2PL[,"a"], data2pl$i.slp)
+
+plot(item_parameters_2PL[,"b"], data2pl$i.loc)
+cor(item_parameters_2PL[,"b"], data2pl$i.loc)
+```
+
+
+# boil it down to a prediction task
+
+
+**Central goal(s)**
+
+- identify subset of items which strongly differentiating between LLMs
+- identify subset of items which are not differentiating between LLMs (vice versa)
+
+
+
+## simple Decision Trees
+
+Idea motivated by: Goal of the decision tree was to provide a classification to identify and distinguish between biology-derived and technology-derived developments. It aimed to rationalize the discussion about these developments by incorporating descriptive, normative, and emotional aspects, ultimately achieving an average accuracy of 90.0% in classifying the examples [@speckBiomimeticBioinspiredBiomorph2017].
+
+
+- Probably we could get better results using the *Iterative Dichotomiser 3 (ID3) Algorithm*:
+  + calculates the entropy of every attribute using the data set S,
+  + splits the set S into subsets using the attribute for which entropy is minimum (or, equivalently, information gain is maximum),
+  + makes a decision tree node containing that item, and
+  + recurs on subsets using remaining attributes.
+
+
+
+```{r}
+# Create a CART model for classification
+set.seed(123)  # for reproducibility
+num_cols <- 501
+
+sub_dat <- data_wide[, 1:num_cols]
+colnames(sub_dat)[2:ncol(sub_dat)] <- paste0("V", 1:(ncol(sub_dat)-1))
+model <- rpart(model_id ~ ., data = sub_dat)
+rpart.plot(model)
+
+
+## cross-validation not working, error of predict function:
+# train_indices <- sample(1:nrow(data_wide), 0.7 * nrow(data_wide))
+# train_data <- data_wide[train_indices, 1:num_cols]
+# colnames(train_data)[2:ncol(train_data)] <- paste0("V", 1:(ncol(train_data)-1))
+# test_data <- data_wide[-train_indices, 1:num_cols]
+# colnames(test_data)[2:ncol(test_data)] <- paste0("V", 1:(ncol(test_data)-1))
+# predictions <- predict(model, newdata = test_data, type = "class") 
+```
+
+## rigid regression, neutral network?
+
+- would address the $p >> n$ problem in our case, we have fewer observations (LLMs) than predictors
+  + adds a penalty (alpha) to the regression, which shrinks the coefficients and helps in high-dimensional settings, alpha value determines the strength of this penalty—higher alpha values lead to more regularization
+  + necessary to cross-validate result (could also bootstrap as a sensitivity check)
+
+
+**Literature:**
+
+- for regression models:
+  + in R there is a package called **glmnet**, which fits generalized linear and similar models via penalized maximum likelihood, see: https://glmnet.stanford.edu/articles/glmnet.html
++ for Structural Equation Models:
+  + in R there is a package called **regsem**, which implemented regularization for structural equation models [@jacobucciRegsemRegularizedStructural2017]; tutorial paper [@liTutorialUseRegsem2021], guide to select variables [@jacobucciPracticalGuideVariable2019]
++ for Item Response Theory there are **IRTrees**, which are also applied to discover response styles in survey data
+  
+
+
+# Random stuff
+
+## cite literature in Quarto (rmarkdown)
+
+1. Blah blah [see @yarkoniChoosingPredictionExplanation2017, pp. 33-35; also @speckBiomimeticBioinspiredBiomorph2017, ch. 1].
+2. Blah blah [@yarkoniChoosingPredictionExplanation2017, pp. 33-35].
+3. Blah blah [@yarkoniChoosingPredictionExplanation2017; @speckBiomimeticBioinspiredBiomorph2017].
+4. Rutkowski et al. says blah [-@yarkoniChoosingPredictionExplanation2017].
+5. @yarkoniChoosingPredictionExplanation2017 says blah.
+
+
+
+# Our ideas
+
+- Zuweisung Items zu inhaltlichen Bereichen: Zuordnung der jeweiligen Items im MMLU zu den inhaltlichen Bereichen; über 50 verschiedene zu sein (Astronomie, Mathe, Geschichte usw.)
+- mögl. Ansatz zur Lösung der Schätzprobleme (Simulationsstudie), wäre die "logits, probabilities (nach softmax)" der Antworten zu den Fragen (A-E, ...) zu bekommen, um daraus beliebig viele Antworten für alle LLMs zu generieren:
+  + Annahme probability vector für (A-C): [.11, .12, .31] $\rightarrow$ Summe bilden: $0.11+0.12+0.31=0.54$ $\rightarrow$ jedes Element durch Summe dividieren: $\frac{.11}{.54} = .2037$ usw. so viele 0, 1 ziehen wir dann
+
+
+
+# References
